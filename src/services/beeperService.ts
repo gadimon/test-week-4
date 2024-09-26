@@ -22,7 +22,6 @@ export const createBeeper = async (name: string): Promise<Beeper> => {
 };
 
 
-
 export const getBeepers = async (): Promise<Beeper[] | undefined> => {
   const beepers: Beeper[] = await readFromJson();
   return beepers;
@@ -83,10 +82,10 @@ function theNextEnum(status: string): string {
       newStatus = 'detonated';
       break;
     case 'detonated':
-      newStatus = 'It is not possible to change status after detonated';
+      newStatus = "It's not possible to change status";
       break;
     default:
-      newStatus = 'Incorrect status';
+      newStatus = 'Invalid status';
   }
   return newStatus;
 }
