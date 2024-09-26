@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { readFromJson, writeToJson, deleteFromJson } from "../dal/access.js"
-import { Beeper } from "../models/types.js";
-import { Status } from '../utils/status.js'
-
+import { readFromJson, writeToJson, deleteFromJson, updateJson } from "../dal/access"
+import { Beeper } from "../models/types";
+import { Status } from '../utils/status'
+import { Latitude, Longitude } from '../coordinates/coordinates'
 
 export const createBeeper = async (name: string): Promise<Beeper> => {
   const beeperId: string = uuidv4();
@@ -31,19 +31,20 @@ export const getBeepers = async (): Promise<Beeper[] | undefined> => {
 
 export const getBeeperByID = async (id: string): Promise<Beeper> => {
   const beepers: Beeper[] = await readFromJson();
-  const beeperFind: Beeper | undefined = beepers.find((beeper) => beeper.id === id);
+  const theBeeper: Beeper | undefined = beepers.find((b) => b.id === id);
 
-  if (!beeperFind) {
+  if (!theBeeper) {
     throw new Error("not available");
   }
 
-  return beeperFind;
+  return theBeeper;
 };
 
 
-export const updateTheStatusOfBeeper = async (id: string, status:string): Promise<string> => {
+export const updateBeeperStatus = async (id: string, lat?: number, lon?: number): Promise<string> => {
   const beeper: Beeper = await getBeeperByID(id);
-  const newStatus = status;
+  const oldStatus = beeper.status;
+  const newStatus: string = theNextEnum(oldStatus);
 
   const newBeeper: Beeper = {
     id: beeper.id,
@@ -66,3 +67,26 @@ export const deleteBeeperByID = async (id: string): Promise<void> => {
 };
  
 
+function theNextEnum(status: string): string {
+  let newStatus: string = '';
+  switch (status) {
+    case 'manufactured':
+      newStatus = 'assembled';
+      break;
+    case 'assembled':
+      newStatus = 'shipped';
+      break;
+    case 'shipped':
+      newStatus = 'deployed';
+      break;
+    case 'deployed':
+      newStatus = 'detonated';
+      break;
+    case 'detonated':
+      newStatus = 'It is not possible to change status after detonated';
+      break;
+    default:
+      newStatus = 'Incorrect status';
+  }
+  return newStatus;
+}
